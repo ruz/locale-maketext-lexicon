@@ -1,5 +1,5 @@
 package Locale::Maketext::Lexicon;
-$Locale::Maketext::Lexicon::VERSION = '0.77';
+$Locale::Maketext::Lexicon::VERSION = '0.79';
 
 use 5.004;
 use strict;
@@ -10,7 +10,7 @@ Locale::Maketext::Lexicon - Use other catalog formats in Maketext
 
 =head1 VERSION
 
-This document describes version 0.77 of Locale::Maketext::Lexicon,
+This document describes version 0.79 of Locale::Maketext::Lexicon,
 released December 29, 2008.
 
 =head1 SYNOPSIS
@@ -304,7 +304,7 @@ sub import {
             no strict 'refs';
             eval "use $class\::$format; 1" or die $@;
 
-            if ( defined %{"$export\::Lexicon"} ) {
+            if ( %{"$export\::Lexicon"} ) {
                 if ( ref( tied %{"$export\::Lexicon"} ) eq __PACKAGE__ ) {
                     tied( %{"$export\::Lexicon"} )->_force;
                 }
