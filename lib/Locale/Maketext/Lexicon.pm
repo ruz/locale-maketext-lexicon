@@ -296,8 +296,9 @@ sub import {
             }
 
             local $@;
-            my @content =
-              eval { $class->lexicon_get( $src, scalar caller(1), $lang ); };
+            my @content = eval { $class->lexicon_get(
+                $src, scalar caller(1), $lang
+            ); };
             next if $@ and $@ =~ /^next\b/;
             die $@ if $@;
 
@@ -323,13 +324,12 @@ sub import {
             }
             else {
                 local $^W if $] >= 5.009;    # no warnings 'once', really.
-                tie %{"$export\::Lexicon"}, __PACKAGE__,
-                  {
+                tie %{"$export\::Lexicon"}, __PACKAGE__, {
                     Opts    => $OptsRef,
                     Export  => "$export\::Lexicon",
                     Class   => "$class\::$format",
                     Content => \@content,
-                  };
+                };
             }
 
             length $lang or next;
