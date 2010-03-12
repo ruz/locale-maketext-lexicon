@@ -380,7 +380,8 @@ sub TIEHASH {
 
     sub _force {
         my $args = shift;
-        if ( !$args->{Done}++ ) {
+        unless ( $args->{'Done'} ) {
+            $args->{'Done'} = 1;
             local *Opts = $args->{Opts};
             *{ $args->{Export} } =
               $args->{Class}->parse( @{ $args->{Content} } );
