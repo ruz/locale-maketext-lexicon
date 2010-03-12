@@ -363,7 +363,7 @@ sub _style_gettext {
             $lh, Locale::Maketext::Lexicon::Gettext::_gettext_to_maketext($str),
             @_
         );
-      }
+    }
 }
 
 sub TIEHASH {
@@ -480,27 +480,34 @@ sub lexicon_get_glob {
 # assume filename - search path, open and return its contents
 sub lexicon_get_ {
     my ( $class, $src, $caller, $lang ) = @_;
-
-    require FileHandle;
-    require File::Spec;
-
-    my $fh = FileHandle->new;
-    my @path = split( '::', $caller );
-    push @path, $lang if length $lang;
-
-    $src = (
-        grep { -e } map {
-            my @subpath = @path[ 0 .. $_ ];
-            map { File::Spec->catfile( $_, @subpath, $src ) } @INC;
-          } -1 .. $#path
-      )[-1]
-      unless -e $src;
-
+    $src = $class->lexicon_find( $src, $caller, $lang );
     defined $src or die 'next';
 
+    require FileHandle;
+    my $fh = FileHandle->new;
     $fh->open($src) or die "Cannot read $src (called by $caller): $!";
     binmode($fh);
     return <$fh>;
+}
+
+sub lexicon_find {
+    my ( $class, $src, $caller, $lang ) = @_;
+    return $src if -e $src;
+
+    require File::Spec;
+
+    my @path = split '::', $caller;
+    push @path, $lang if length $lang;
+
+    while ( @path ) {
+        foreach ( @INC ) {
+            my $file = File::Spec->catfile( $_, @path, $src );
+            return $file if -e $file;
+        }
+        pop @path;
+    }
+
+    return undef;
 }
 
 1;
