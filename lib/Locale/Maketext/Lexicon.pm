@@ -305,18 +305,21 @@ sub import {
             eval "use $class\::$format; 1" or die $@;
 
             if ( %{"$export\::Lexicon"} ) {
-                if ( ref( tied %{"$export\::Lexicon"} ) eq __PACKAGE__ ) {
-                    tied( %{"$export\::Lexicon"} )->_force;
+                my $lexicon = \%{"$export\::Lexicon"};
+                if ( my $obj = tied %$lexicon ) {
+                    # if it's our tied hash then force loading
+                    # otherwise late load will rewrite
+                    $obj->_force if $obj->isa( __PACKAGE__ );
                 }
 
                 # clear the memoized cache for old entries:
                 Locale::Maketext->clear_isa_scan;
 
-                # be very careful not to pollute the possibly tied lexicon
-                *{"$export\::Lexicon"} = {
-                    %{"$export\::Lexicon"},
-                    %{ "$class\::$format"->parse(@content) },
-                };
+                my $new = "$class\::$format"->parse(@content);
+                # avoid hash rebuild, on big sets
+                while ( my ($k,$v) = each %$new ) {
+                    $lexicon->{$k} = $v;
+                }
             }
             else {
                 local $^W if $] >= 5.009;    # no warnings 'once', really.
