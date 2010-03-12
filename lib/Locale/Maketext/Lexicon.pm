@@ -384,12 +384,11 @@ sub TIEHASH {
             $args->{'Done'} = 1;
             local *Opts = $args->{Opts};
             *{ $args->{Export} } =
-              $args->{Class}->parse( @{ $args->{Content} } );
-            if ( option('auto') ) {
-                ( \%{ $args->{Export} } )->{'_AUTO'} = 1;
-            }
+                $args->{Class}->parse( @{ $args->{Content} } );
+            $args->{'Export'}{'_AUTO'} = 1
+                if option('auto');
         }
-        return \%{ $args->{Export} };
+        return $args->{'Export'};
     }
     sub FETCH   { _force( $_[0] )->{ $_[1] } }
     sub EXISTS  { _force( $_[0] )->{ $_[1] } }
