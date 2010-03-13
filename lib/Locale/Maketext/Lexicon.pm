@@ -22,10 +22,14 @@ lexicons:
     use base 'Locale::Maketext';
     use Locale::Maketext::Lexicon {
         '*' => [Gettext => '/usr/local/share/locale/*/LC_MESSAGES/hello.mo'],
-        ### Uncomment to decode lexicon entries into Unicode strings
-        # _decode => 1,
         ### Uncomment to fallback when a key is missing from lexicons
         # _auto   => 1,
+        ### Uncomment to decode lexicon entries into Unicode strings
+        # _decode => 1,
+        ### Uncomment to load and parse everything right away
+        # _preload => 1,
+        ### Uncomment to avoid use of tied hashes
+        # _no_tie => 1,
         ### Uncomment to use %1 / %quant(%1) instead of [_1] / [quant, _1]
         # _style  => 'gettext',
     };
@@ -149,6 +153,20 @@ utf8-strings.
 
 If C<_encoding> is set to C<locale>, the encoding from the
 current locale setting is used.
+
+=item C<_preload>
+
+By default parsing is delayed until first use of the lexicon,
+set this option to true value to parse it asap. Increment
+adding lexicons forces parsing.
+
+=item C<_no_tie>
+
+This option disables use of tied hashes to delay parsing, so
+setting this to a true value enables C<_preload> option as
+well.
+
+=item
 
 =back
 
@@ -322,6 +340,10 @@ sub import {
                     $lexicon->{$k} = $v;
                 }
             }
+            elsif ( $OptsRef->{'no_tie'} ) {
+                *{"$export\::Lexicon"} = "$class\::$format"->parse(@content);
+                (\%{"$export\::Lexicon"})->{'_AUTO'} = 1 if option('auto');
+            }
             else {
                 local $^W if $] >= 5.009;    # no warnings 'once', really.
                 tie %{"$export\::Lexicon"}, __PACKAGE__, {
@@ -330,6 +352,8 @@ sub import {
                     Class   => "$class\::$format",
                     Content => \@content,
                 };
+                tied( %{"$export\::Lexicon"} )->_force
+                    if $OptsRef->{'preload'};
             }
 
             length $lang or next;
