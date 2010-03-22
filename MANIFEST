@@ -13,6 +13,7 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
+inc/parent.pm
 inc/PerlIO.pm
 inc/Test/Builder.pm
 inc/Test/Builder/IO/Scalar.pm
@@ -68,4 +69,6 @@ t/locale/zh_TW/LC_MESSAGES/test_be.mo
 t/locale/zh_TW/LC_MESSAGES/test_utf8.mo
 t/messages.mo
 t/messages.po
+t/no_tie.t
+t/preload.t
 t/T_L10N.pm
